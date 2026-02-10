@@ -32,10 +32,17 @@ Unified the API architecture for Next.js 15:
 - **Asynchronous Route Handling**: Updated dynamic mission and report segments to properly handle asynchronous parameters, ensuring flawless production builds.
 - **Type-Safe Intelligence API**: Synchronized the new report generation endpoint with modern Next.js server-side standards.
 
+### 11. Ethical Scope & Licensing Compliance
+Established clear boundaries for the platform's operation:
+- **Target Restriction**: Explicitly scoped for **Educational Research** and **Open-Source Analysis**.
+- **Licensing Alignment**: In compliance with GitHub CodeQL terms, the platform does not target private codebases.
+- **Production Status**: Marked as a research/educational prototype, not intended for commercial production audits without proper licensing.
+
 ## Visual Proof of Work
 
 ### Professional Landing Page
 - **Hero Redesign**: Sharp typography, terminal-inspired mission logs, and minimalist feature grid.
+- **Compliance Section**: Integrated a dedicated ethical boundaries block for transparency.
 
 ### Assets Management
 - **High-Contrast Listing**: A clean overview of verified perimeter assets with status tracking.

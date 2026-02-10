@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Shield, ShieldAlert, Zap, Globe, Github, Lock, ArrowRight, Terminal, Search, Cpu } from "lucide-react";
+import { Shield, ShieldAlert, Zap, Globe, Github, Lock, ArrowRight, Terminal, Search, Cpu, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
@@ -168,6 +168,36 @@ export default function Home() {
 
         {/* Console Mockup */}
         <MissionConsole />
+        {/* Compliance & Scope */}
+        <section className="w-full mb-40 border-y border-white/5 py-20 px-10 bg-white/[0.01]">
+          <div className="max-w-4xl mx-auto text-center space-y-8">
+            <div className="flex items-center justify-center gap-3 text-white/40 mb-2">
+              <Lock className="w-4 h-4" />
+              <span className="text-[10px] font-black uppercase tracking-widest">Global Compliance</span>
+            </div>
+            <h2 className="text-2xl md:text-3xl font-bold uppercase tracking-tight">Ethical Scope & Licensing</h2>
+            <p className="text-slate-500 text-sm font-medium leading-relaxed uppercase tracking-tight max-w-2xl mx-auto">
+              Sentinel AI is engineered for **Educational Research and Open-Source Perimeter Analysis**. 
+              In accordance with licensing protocols, the platform does not target private codebases and operates under 
+              standard research guidelines.
+            </p>
+            <div className="flex flex-wrap justify-center gap-8 pt-4 grayscale opacity-40">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4" />
+                <span className="text-[10px] font-black uppercase tracking-widest">OSI Standards</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Globe className="w-4 h-4" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Public Domain Focus</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Lock className="w-4 h-4" />
+                <span className="text-[10px] font-black uppercase tracking-widest">Non-Production</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </main>
 
       {/* Footer */}

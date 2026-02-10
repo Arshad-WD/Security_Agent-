@@ -219,9 +219,14 @@ export default function NewScanModal({ isOpen, onClose }: { isOpen: boolean; onC
 
                         <div className="p-4 bg-white/5 border border-white/5 rounded flex gap-4">
                             <ShieldAlert className="w-4 h-4 text-white shrink-0 mt-0.5" />
-                            <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
-                                Authorized Mission: By proceeding, you verify full legal authorization to audit this target. All agent activities are logged and trace verified.
-                            </p>
+                            <div className="space-y-2">
+                                <p className="text-[10px] text-slate-500 leading-relaxed font-medium">
+                                    <span className="text-white font-bold">Authorized Mission:</span> By proceeding, you verify full legal authorization to audit this target. All agent activities are logged and trace verified.
+                                </p>
+                                <p className="text-[10px] text-red-400 font-bold leading-relaxed uppercase tracking-tight">
+                                    [!] Licensing Protocol: This platform is for Open-Source & Educational use. Corporate/Private audits are restricted by CodeQL licensing terms.
+                                </p>
+                            </div>
                         </div>
                     </div>
 
