@@ -98,16 +98,24 @@ export async function performRecon(target: string): Promise<ReconResult> {
         }
     } catch (e) { }
 
-    // 3. Proactive path probes
+    // 3. Proactive path probes (Parallelized for Velocity)
     const pathsToProbe = ["/robots.txt", "/.git/config", "/package.json", "/.env"];
-    for (const path of pathsToProbe) {
-        try {
-            const res = await fetch(`${target.replace(/\/$/, '')}${path}`, { method: 'HEAD' });
-            if (res.ok) {
-                headers[`probe:${path}`] = "found";
-            }
-        } catch (e) { }
-    }
+    try {
+        const probePromises = pathsToProbe.map(async (path) => {
+            try {
+                const res = await fetch(`${target.replace(/\/$/, '')}${path}`, { method: 'HEAD' });
+                if (res.ok) {
+                    return { path: `probe:${path}`, status: "found" };
+                }
+            } catch (e) { }
+            return null;
+        });
+
+        const results = await Promise.all(probePromises);
+        results.forEach(res => {
+            if (res) headers[res.path] = res.status;
+        });
+    } catch (e) { }
 
     return {
         techStack: stack.length > 0 ? stack : ["Unknown Web Platform"],
@@ -284,17 +292,24 @@ export async function performRepoRecon(target: string): Promise<RepoReconResult>
             "README.md"
         ];
 
-        for (const file of filesToCheck) {
+        const probePromises = filesToCheck.map(async (file) => {
             try {
-                // We use HEAD to check for existence without downloading everything
                 const res = await fetch(`${baseUrl}/${file}`, { method: 'HEAD' });
                 if (res.ok) {
-                    foundFiles.push(file);
-                    if (file === "package.json") stack.push("Node.js");
-                    if (file === "Dockerfile") stack.push("Docker");
+                    return { file, found: true };
                 }
             } catch (e) { }
-        }
+            return null;
+        });
+
+        const results = await Promise.all(probePromises);
+        results.forEach(res => {
+            if (res) {
+                foundFiles.push(res.file);
+                if (res.file === "package.json") stack.push("Node.js");
+                if (res.file === "Dockerfile") stack.push("Docker");
+            }
+        });
     }
 
     return {

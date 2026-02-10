@@ -63,7 +63,8 @@ export async function runFullSecurityScan(scanId: string, llmConfig?: { provider
 
             issues = await reasonRepoVulnerabilities(recon, llmConfig);
 
-            for (const issue of issues) {
+            // Parallel Finding Generation
+            const findingPromises = issues.map(async (issue) => {
                 const report = await generateSecurityReport(recon, issue);
                 await prisma.finding.create({
                     data: {
@@ -75,11 +76,14 @@ export async function runFullSecurityScan(scanId: string, llmConfig?: { provider
                         location: report.category
                     }
                 });
-                await prisma.scan.update({
-                    where: { id: scanId },
-                    data: { logs: [`[Finding] Identified ${report.title} (${report.severity}) in mission parameters.`] }
-                });
-            }
+                return `[Finding] Identified ${report.title} (${report.severity}) in mission parameters.`;
+            });
+
+            const findingLogs = await Promise.all(findingPromises);
+            await prisma.scan.update({
+                where: { id: scanId },
+                data: { logs: findingLogs }
+            });
         } else {
             await prisma.scan.update({
                 where: { id: scanId },
@@ -102,7 +106,8 @@ export async function runFullSecurityScan(scanId: string, llmConfig?: { provider
 
             issues = await reasonVulnerabilities(recon, llmConfig);
 
-            for (const issue of issues) {
+            // Parallel Finding Generation
+            const findingPromises = issues.map(async (issue) => {
                 const report = await generateSecurityReport(recon, issue);
                 await prisma.finding.create({
                     data: {
@@ -114,11 +119,14 @@ export async function runFullSecurityScan(scanId: string, llmConfig?: { provider
                         location: report.category
                     }
                 });
-                await prisma.scan.update({
-                    where: { id: scanId },
-                    data: { logs: [`[Finding] Identified ${report.title} (${report.severity}) via ${issue.id.startsWith('LLM') ? 'Intelligence' : 'Heuristics'}.`] }
-                });
-            }
+                return `[Finding] Identified ${report.title} (${report.severity}) via ${issue.id.startsWith('LLM') ? 'Intelligence' : 'Heuristics'}.`;
+            });
+
+            const findingLogs = await Promise.all(findingPromises);
+            await prisma.scan.update({
+                where: { id: scanId },
+                data: { logs: findingLogs }
+            });
         }
 
         // 4. Complete Scan Mission
