@@ -103,11 +103,58 @@ export default function ScansPage() {
 }
 
 function ScanRow({ scan }: any) {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+
   const statusColors: any = {
     COMPLETED: "text-green-500 border-green-500/20 bg-green-500/5",
     RUNNING: "text-blue-400 border-blue-400/20 bg-blue-400/5 animate-pulse",
     FAILED: "text-red-500 border-red-500/20 bg-red-500/5",
     PENDING: "text-slate-500 border-white/10 bg-white/5",
+  };
+
+  const handleRetry = async () => {
+    if (!confirm("Are you sure you want to retry this scan?")) return;
+    
+    setIsRetrying(true);
+    try {
+      const response = await fetch(`/api/scan/${scan.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "retry" }),
+      });
+      
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        alert("Failed to retry scan");
+      }
+    } catch (error) {
+      alert("Error retrying scan");
+    } finally {
+      setIsRetrying(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this scan? This action cannot be undone.")) return;
+    
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/scan/${scan.id}`, {
+        method: "DELETE",
+      });
+      
+      if (response.ok) {
+        window.location.reload();
+      } else {
+        alert("Failed to delete scan");
+      }
+    } catch (error) {
+      alert("Error deleting scan");
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -141,13 +188,23 @@ function ScanRow({ scan }: any) {
               <FileText size={14} />
             </a>
           )}
-          <button className="p-2 hover:bg-white/10 rounded transition-colors text-slate-500 hover:text-white">
-            <RefreshCcw size={14} />
+          <button 
+            onClick={handleRetry}
+            disabled={isRetrying || scan.status === "RUNNING"}
+            className="p-2 hover:bg-white/10 rounded transition-colors text-slate-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Retry Scan"
+          >
+            <RefreshCcw size={14} className={isRetrying ? "animate-spin" : ""} />
           </button>
-          <Link href={`/dashboard/scans/${scan.id}`} className="p-2 hover:bg-white/10 rounded transition-colors text-slate-500 hover:text-white">
+          <Link href={`/dashboard/scans/${scan.id}`} className="p-2 hover:bg-white/10 rounded transition-colors text-slate-500 hover:text-white" title="View Details">
             <ArrowUpRight size={14} />
           </Link>
-          <button className="p-2 hover:bg-white/10 rounded transition-colors text-slate-500 hover:text-red-500">
+          <button 
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="p-2 hover:bg-white/10 rounded transition-colors text-slate-500 hover:text-red-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Delete Scan"
+          >
             <Trash2 size={14} />
           </button>
         </div>

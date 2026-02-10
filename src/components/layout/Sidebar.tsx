@@ -13,10 +13,25 @@ import {
   X
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await fetch("/api/auth/signout", { method: "POST" });
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      console.error("Sign out failed", error);
+      setIsSigningOut(false);
+    }
+  };
 
   const navItems = [
     { name: "Dashboard", icon: <LayoutDashboard size={18} />, path: "/dashboard" },
@@ -75,9 +90,15 @@ export default function Sidebar() {
           </div>
         </div>
 
-        <button className="flex items-center justify-center gap-3 px-4 py-3 rounded-2xl text-slate-500 hover:text-red-400 hover:bg-red-500/5 transition-all w-full border border-transparent hover:border-red-500/10 group">
-          <LogOut className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-          <span className="font-bold text-xs uppercase tracking-widest leading-none">Terminate Session</span>
+        <button 
+          onClick={handleSignOut}
+          disabled={isSigningOut}
+          className="flex items-center justify-center gap-3 px-4 py-3 rounded-2xl text-slate-500 hover:text-red-400 hover:bg-red-500/5 transition-all w-full border border-transparent hover:border-red-500/10 group disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <LogOut className={`w-4 h-4 group-hover:-translate-x-1 transition-transform ${isSigningOut ? 'animate-pulse' : ''}`} />
+          <span className="font-bold text-xs uppercase tracking-widest leading-none">
+            {isSigningOut ? "Terminating..." : "Terminate Session"}
+          </span>
         </button>
       </div>
     </aside>

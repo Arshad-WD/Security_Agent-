@@ -22,11 +22,18 @@ export default function Home() {
             <Link href="#intelligence" className="hover:text-white transition-colors">Intelligence</Link>
           </div>
 
-          <Link href="/dashboard">
-            <button className="bg-white text-black text-[10px] font-black uppercase tracking-widest px-6 py-2 rounded hover:bg-slate-200 transition-all">
-              Console
-            </button>
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link href="/auth/signin">
+              <button className="text-white text-[10px] font-black uppercase tracking-widest px-6 py-2 rounded hover:bg-white/5 transition-all">
+                Sign In
+              </button>
+            </Link>
+            <Link href="/auth/signup">
+              <button className="bg-white text-black text-[10px] font-black uppercase tracking-widest px-6 py-2 rounded hover:bg-slate-200 transition-all">
+                Get Started
+              </button>
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -59,7 +66,7 @@ export default function Home() {
                 Initialize Console
               </button>
             </Link>
-            <Link href="/docs/SYSTEM_DESIGN.md">
+            <Link href="/docs/system-design">
               <button className="border border-white/10 text-white font-black text-[10px] uppercase tracking-[0.2em] py-4 px-10 rounded hover:bg-white/5 transition-all active:scale-95">
                 Technical Blueprint
               </button>
