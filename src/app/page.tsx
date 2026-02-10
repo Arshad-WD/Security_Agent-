@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Shield, ShieldAlert, Zap, Globe, Github, Lock, ArrowRight, Terminal, Search, Cpu } from "lucide-react";
 import Link from "next/link";
@@ -166,46 +167,7 @@ export default function Home() {
         </section>
 
         {/* Console Mockup */}
-        <div className="w-full bg-black border border-white/10 rounded-lg overflow-hidden text-left font-mono text-[11px] leading-relaxed shadow-3xl">
-          <div className="px-4 py-2 border-b border-white/10 bg-white/[0.02] flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-white/20" />
-            <div className="w-2 h-2 rounded-full bg-white/20" />
-            <div className="w-2 h-2 rounded-full bg-white/20" />
-            <span className="ml-2 text-[10px] font-black uppercase tracking-widest text-white/40">mission_console.log</span>
-          </div>
-          <div className="p-8 space-y-2">
-            <div className="flex gap-4">
-              <span className="text-white/20">[16:15:02]</span>
-              <span className="text-white font-bold opacity-50">➜</span>
-              <span className="text-white">sentinel initialize_mission --target perimeter.alpha</span>
-            </div>
-            <div className="flex gap-4">
-              <span className="text-white/20">[16:15:03]</span>
-              <span className="text-white/40">SYST</span>
-              <span className="text-slate-500">Provisioning autonomous agent...</span>
-            </div>
-            <div className="flex gap-4">
-              <span className="text-white/20">[16:15:05]</span>
-              <span className="text-white/40">ENGN</span>
-              <span className="text-slate-500">Analyzing surface area: 12 endpoints detected.</span>
-            </div>
-            <div className="flex gap-4">
-              <span className="text-white/20">[16:15:08]</span>
-              <span className="text-white/40 text-red-500">ALRT</span>
-              <span className="text-red-500 font-bold uppercase tracking-widest">Discovery: High-Impact SQL Exposure</span>
-            </div>
-            <div className="flex gap-4">
-              <span className="text-white/20">[16:15:09]</span>
-              <span className="text-white/40">INTE</span>
-              <span className="text-slate-400">Reasoning complete. Remediation protocol generated.</span>
-            </div>
-            <div className="mt-4 flex gap-4">
-              <span className="text-white/20">[16:15:10]</span>
-              <span className="text-white opacity-50">➜</span>
-              <span className="text-white bg-white/10 px-1 animate-pulse">_</span>
-            </div>
-          </div>
-        </div>
+        <MissionConsole />
       </main>
 
       {/* Footer */}
@@ -261,6 +223,84 @@ export default function Home() {
   );
 }
 
+function MissionConsole() {
+  const [logs] = useState([
+    { time: "16:15:02", type: "USER", text: "sentinel initialize_mission --target perimeter.alpha", color: "text-white" },
+    { time: "16:15:03", type: "SYST", text: "Provisioning autonomous agent...", color: "text-slate-500" },
+    { time: "16:15:05", type: "ENGN", text: "Analyzing surface area: 12 endpoints detected.", color: "text-slate-500" },
+    { time: "16:15:06", type: "RECN", text: "Parallel fingerprinting: Node.js / Next.js / PostgreSQL", color: "text-blue-500/50" },
+    { time: "16:15:08", type: "ALRT", text: "Discovery: High-Impact SQL Exposure in /api/mission", color: "text-red-500 font-black uppercase tracking-widest" },
+    { time: "16:15:09", type: "INTE", text: "Heuristic correlation: Mapping CVE-2024-X to telemetry.", color: "text-slate-400" },
+    { time: "16:15:10", type: "SYST", text: "Reasoning complete. Neutralization roadmap generated.", color: "text-white/60" },
+  ]);
+
+  const [visibleLogs, setVisibleLogs] = useState<any[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (currentIndex < logs.length) {
+      const timer = setTimeout(() => {
+        setVisibleLogs((prev: any[]) => [...prev, logs[currentIndex]]);
+        setCurrentIndex((prev: number) => prev + 1);
+      }, currentIndex === 0 ? 800 : 1200);
+      return () => clearTimeout(timer);
+    } else {
+        const resetTimer = setTimeout(() => {
+            setVisibleLogs([]);
+            setCurrentIndex(0);
+        }, 8000);
+        return () => clearTimeout(resetTimer);
+    }
+  }, [currentIndex, logs]);
+
+  return (
+    <div className="w-full bg-black border border-white/10 rounded-lg overflow-hidden text-left font-mono text-[11px] leading-relaxed shadow-3xl relative backdrop-blur-sm group">
+      <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
+      <div className="px-4 py-2 border-b border-white/10 bg-white/[0.02] flex items-center justify-between relative z-10 font-sans">
+        <div className="flex items-center gap-2">
+            <div className="flex gap-1">
+              <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/40" />
+              <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/20 border border-yellow-500/40" />
+              <div className="w-2.5 h-2.5 rounded-full bg-green-500/20 border border-green-500/40" />
+            </div>
+            <span className="ml-2 text-[10px] font-black uppercase tracking-[0.2em] text-white/40">mission_telemetry_live.bin</span>
+        </div>
+        <div className="flex items-center gap-4 text-[9px] font-black uppercase tracking-widest text-white/20">
+            <span className="animate-pulse">Active Instance</span>
+            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+        </div>
+      </div>
+      <div className="p-10 space-y-4 min-h-[360px] relative z-10">
+        {visibleLogs.map((log: any, i: number) => (
+          <motion.div 
+            key={i}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex gap-6"
+          >
+            <span className="text-white/10 hidden md:inline w-16 shrink-0 font-bold tracking-tighter">[{log.time}]</span>
+            <span className="text-white/30 w-12 shrink-0 font-black tracking-widest text-[9px]">{log.type}</span>
+            <span className={`flex-1 ${log.color} tracking-tight`}>
+                {log.type === "USER" && <span className="mr-3 text-white">➜</span>}
+                {log.text}
+            </span>
+          </motion.div>
+        ))}
+        <div className="mt-6 flex gap-6">
+          <span className="text-white/10 hidden md:inline w-16 shrink-0 font-bold">--:--:--</span>
+          <span className="text-white/30 w-12 shrink-0 font-black tracking-widest text-[9px]">WAIT</span>
+          <span className="text-white/40 flex items-center gap-1">
+             <span className="animate-pulse">➜</span>
+             <span className="w-2 h-4 bg-white/20 animate-pulse ml-1" />
+          </span>
+        </div>
+      </div>
+      {/* Scanline & Grid Overlays */}
+      <div className="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.02),rgba(0,255,0,0.01),rgba(0,0,255,0.02))] bg-[length:100%_2px,3px_100%]" />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:20px_20px]" />
+    </div>
+  );
+}
 
 function FeatureItem({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
