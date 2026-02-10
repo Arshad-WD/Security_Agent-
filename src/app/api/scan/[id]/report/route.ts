@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
     try {
-        const scanId = params.id;
+        const { id: scanId } = await params;
 
         // 1. Fetch scan mission data
         const scan = await prisma.scan.findUnique({
