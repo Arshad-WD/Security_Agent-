@@ -11,7 +11,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { url, type, consent, llmProvider, llmKey, allKeys } = body;
+        const { url, type, consent, llmProvider, llmKey, allKeys, useStaticAnalysis } = body;
 
         if (!url || !consent) {
             return NextResponse.json({ error: "URL and consent are required" }, { status: 400 });
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
         });
 
         // Trigger the analysis engine (non-blocking for the response)
-        runFullSecurityScan(scan.id, { provider: llmProvider, key: llmKey, allKeys }).catch(console.error);
+        runFullSecurityScan(scan.id, { provider: llmProvider, key: llmKey, allKeys }, useStaticAnalysis ?? true).catch(console.error);
 
         return NextResponse.json(scan);
     } catch (error: any) {

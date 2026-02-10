@@ -7,8 +7,11 @@ import {
     reasonRepoVulnerabilities
 } from "./agents/AgentSystem";
 import { prisma } from "./db";
+import { SemgrepWrapper } from "./static-analysis/SemgrepWrapper";
+import { PatternScanner } from "./static-analysis/PatternScanner";
+import { cloneRepository, cleanupRepository } from "./git-utils";
 
-export async function runFullSecurityScan(scanId: string, llmConfig?: { provider: string, key: string, allKeys?: Record<string, string> }) {
+export async function runFullSecurityScan(scanId: string, llmConfig?: { provider: string, key: string, allKeys?: Record<string, string> }, useStaticAnalysis: boolean = true) {
     try {
         // 1. Fetch scan target
         const scan = await prisma.scan.findUnique({
@@ -39,7 +42,7 @@ export async function runFullSecurityScan(scanId: string, llmConfig?: { provider
 
         // Detect Target Type (URL vs GitHub)
         const isGithub = scan.url.includes("github.com");
-        let issues = [];
+        let issues: any[] = [];
 
         if (isGithub) {
             await prisma.scan.update({
@@ -47,7 +50,7 @@ export async function runFullSecurityScan(scanId: string, llmConfig?: { provider
                 data: { logs: ["Detected GitHub Repository. Launching Source Audit pipeline...", "Mapping repository structure via raw content edge..."] }
             });
 
-            // GitHub Repo Pipeline
+            // 1. GitHub Repo API Pipeline (Fast Recon)
             const recon = await performRepoRecon(scan.url);
             await prisma.scan.update({
                 where: { id: scanId },
@@ -62,6 +65,60 @@ export async function runFullSecurityScan(scanId: string, llmConfig?: { provider
             }
 
             issues = await reasonRepoVulnerabilities(recon, llmConfig);
+
+            // 2. Deep Static Analysis (Semgrep / Pattern Fallback)
+            if (useStaticAnalysis) {
+                let repoPath: string | null = null;
+                try {
+                    await prisma.scan.update({
+                        where: { id: scanId },
+                        data: { logs: ["Initiating Deep Static Analysis...", "Cloning repository for secure environment scan..."] }
+                    });
+
+                    repoPath = await cloneRepository(scan.url);
+
+                    // Initialize Scanners
+                    const semgrep = new SemgrepWrapper();
+                    const patternScanner = new PatternScanner();
+                    let staticFindings: any[] = [];
+
+                    if (await semgrep.isAvailable()) {
+                        await prisma.scan.update({
+                            where: { id: scanId },
+                            data: { logs: ["Semgrep Engine detected. Running advanced rule-based analysis..."] }
+                        });
+                        staticFindings = await semgrep.scan({ targetPath: repoPath });
+                    } else {
+                        await prisma.scan.update({
+                            where: { id: scanId },
+                            data: { logs: ["Semgrep not available (Serverless Environment). engaging Deep Pattern Scanner fallback..."] }
+                        });
+                        staticFindings = await patternScanner.scan({ targetPath: repoPath });
+                    }
+
+                    // Dedup and merge findings
+                    issues = [...issues, ...staticFindings];
+
+                    await prisma.scan.update({
+                        where: { id: scanId },
+                        data: { logs: [`Static Analysis complete. Identified ${staticFindings.length} additional security issues.`] }
+                    });
+
+                } catch (error: any) {
+                    console.error("Static Analysis Failed:", error);
+                    await prisma.scan.update({
+                        where: { id: scanId },
+                        data: { logs: [`Static Analysis Warning: ${error.message}. Continuing with API-based results.`] }
+                    });
+                } finally {
+                    if (repoPath) await cleanupRepository(repoPath);
+                }
+            } else {
+                await prisma.scan.update({
+                    where: { id: scanId },
+                    data: { logs: ["Skipping Deep Static Analysis (User Disabled)."] }
+                });
+            }
 
             // Parallel Finding Generation
             const findingPromises = issues.map(async (issue) => {

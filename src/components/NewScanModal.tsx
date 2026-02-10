@@ -12,6 +12,7 @@ export default function NewScanModal({ isOpen, onClose }: { isOpen: boolean; onC
   const [logs, setLogs] = useState<string[]>([]);
   const [scanProgress, setScanProgress] = useState(0);
   const [selectedProvider, setSelectedProvider] = useState("openai");
+  const [useStaticAnalysis, setUseStaticAnalysis] = useState(true);
   const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
 
   // Refresh keys from localStorage whenever modal opens
@@ -52,7 +53,8 @@ export default function NewScanModal({ isOpen, onClose }: { isOpen: boolean; onC
           consent: hasConsented,
           llmProvider: selectedProvider,
           llmKey: apiKeys[selectedProvider] || "",
-          allKeys: apiKeys
+          allKeys: apiKeys,
+          useStaticAnalysis
         }),
       });
 
@@ -216,6 +218,32 @@ export default function NewScanModal({ isOpen, onClose }: { isOpen: boolean; onC
                                 </p>
                             )}
                         </div>
+
+                        {scanType === "repo" && (
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] block">
+                                   Analysis Depth
+                                </label>
+                                <div className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded">
+                                    <div className="flex items-center gap-3">
+                                        <Zap className={`w-4 h-4 ${useStaticAnalysis ? "text-yellow-400" : "text-slate-600"}`} />
+                                        <div>
+                                            <div className="text-white text-[12px] font-bold uppercase tracking-wide">Deep Static Analysis</div>
+                                            <div className="text-[10px] text-slate-500">Enable Semgrep / Pattern Engine (Slower)</div>
+                                        </div>
+                                    </div>
+                                    <button 
+                                        onClick={() => setUseStaticAnalysis(!useStaticAnalysis)}
+                                        className={`w-10 h-5 rounded-full relative transition-colors ${useStaticAnalysis ? "bg-white" : "bg-white/10"}`}
+                                    >
+                                        <motion.div 
+                                            animate={{ x: useStaticAnalysis ? 20 : 2 }}
+                                            className="absolute top-1 left-0 w-3 h-3 rounded-full bg-black"
+                                        />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         <div className="p-4 bg-white/5 border border-white/5 rounded flex gap-4">
                             <ShieldAlert className="w-4 h-4 text-white shrink-0 mt-0.5" />
