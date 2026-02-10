@@ -17,9 +17,9 @@ export default function Home() {
           </div>
           
           <div className="hidden md:flex items-center gap-8 text-[10px] font-black uppercase tracking-widest text-slate-500">
-            <Link href="#" className="hover:text-white transition-colors">Infrastructure</Link>
-            <Link href="#" className="hover:text-white transition-colors">Protocols</Link>
-            <Link href="#" className="hover:text-white transition-colors">Intelligence</Link>
+            <Link href="#infrastructure" className="hover:text-white transition-colors">Infrastructure</Link>
+            <Link href="#protocols" className="hover:text-white transition-colors">Protocols</Link>
+            <Link href="#intelligence" className="hover:text-white transition-colors">Intelligence</Link>
           </div>
 
           <Link href="/dashboard">
@@ -68,7 +68,7 @@ export default function Home() {
         </motion.div>
 
         {/* Distributed Intelligence Section */}
-        <section className="w-full mb-40">
+        <section id="intelligence" className="w-full mb-40">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div 
               initial={{ opacity: 0, x: -20 }}
@@ -115,7 +115,7 @@ export default function Home() {
         </section>
 
         {/* High-Velocity Engine */}
-        <section className="w-full mb-40">
+        <section id="infrastructure" className="w-full mb-40">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -152,7 +152,7 @@ export default function Home() {
         </section>
 
         {/* Autonomous Flow */}
-        <section className="w-full mb-40">
+        <section id="protocols" className="w-full mb-40">
            <div className="flex flex-col md:flex-row gap-10">
              <div className="md:w-1/3">
                 <h3 className="text-2xl font-bold uppercase tracking-tighter mb-4 text-white">Mission <br/> Lifecycle</h3>
@@ -213,9 +213,9 @@ export default function Home() {
           <div className="space-y-6">
             <h5 className="text-white">Platform</h5>
             <div className="flex flex-col gap-4">
-              <Link href="#" className="hover:text-white transition-colors">Infrastructure</Link>
-              <Link href="#" className="hover:text-white transition-colors">Intelligence</Link>
-              <Link href="#" className="hover:text-white transition-colors">Protocols</Link>
+              <Link href="#infrastructure" className="hover:text-white transition-colors">Infrastructure</Link>
+              <Link href="#intelligence" className="hover:text-white transition-colors">Intelligence</Link>
+              <Link href="#protocols" className="hover:text-white transition-colors">Protocols</Link>
             </div>
           </div>
           <div className="space-y-6">
